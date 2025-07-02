@@ -1,7 +1,7 @@
 // whatever you data model is, name the file accordingly
 
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 export const createDocument = mutation({
   args: {
@@ -9,16 +9,34 @@ export const createDocument = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
+    // check authentication
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    console.log("User ID:", userId);
+    if (!userId) {
+      throw new ConvexError("User not authenticated");
+    }
+
     // what is going to be executed on the backend
     await ctx.db.insert("documents", {
       title: args.title,
+      tokenIdentifier: userId, // associate the document with the user
     });
   },
 });
 
 export const getDocuments = query({
   handler: async (ctx) => {
+    // convex is checking the clerk authentication for us
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    console.log("User ID:", userId);
+    if (!userId) {
+      return [];
+    }
+
     // get everything from the "document" table
-    return await ctx.db.query("documents").collect();
+    return await ctx.db
+      .query("documents")
+      .withIndex("by_tokenIdenifier", (q) => q.eq("tokenIdentifier", userId)) // query only for documents where the tokenIdentifier matches the user's tokenIdentifier
+      .collect();
   },
 });
