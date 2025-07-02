@@ -11,12 +11,11 @@ export const createDocument = mutation({
   handler: async (ctx, args) => {
     // check authentication
     const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
-    console.log("User ID:", userId);
     if (!userId) {
       throw new ConvexError("User not authenticated");
     }
 
-    // what is going to be executed on the backend
+    // Added the document to the "documents" table with clerk user Id
     await ctx.db.insert("documents", {
       title: args.title,
       tokenIdentifier: userId, // associate the document with the user

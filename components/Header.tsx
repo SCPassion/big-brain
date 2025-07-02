@@ -1,7 +1,4 @@
-"use client";
-
-import { SignInButton, UserButton } from "@clerk/nextjs";
-import { Authenticated, Unauthenticated } from "convex/react";
+import HeaderAction from "./HeaderAction";
 import { ModeToggle } from "./ui/mode-toggle";
 import Image from "next/image";
 
@@ -19,16 +16,9 @@ export default function Header() {
           />
           BIGBRAIN
         </div>
-        <div>
-          <Authenticated>
-            <div className="flex items-center gap-4">
-              <ModeToggle />
-              <UserButton />
-            </div>
-          </Authenticated>
-          <Unauthenticated>
-            <SignInButton />
-          </Unauthenticated>
+        <div className="flex items-center gap-4">
+          <ModeToggle />
+          <HeaderAction />
         </div>
       </div>
     </div>
