@@ -7,6 +7,7 @@ export const createDocument = mutation({
   args: {
     // what the user can send from frontend to backend
     title: v.string(),
+    fileId: v.string(),
   },
   handler: async (ctx, args) => {
     // check authentication
@@ -18,8 +19,16 @@ export const createDocument = mutation({
     // Added the document to the "documents" table with clerk user Id
     await ctx.db.insert("documents", {
       title: args.title,
+      fileId: args.fileId, // this is the file ID from the storage service
       tokenIdentifier: userId, // associate the document with the user
     });
+  },
+});
+
+// Generate a signed URL for uploading files to storage
+export const generateUploadUrl = mutation({
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
   },
 });
 
@@ -27,7 +36,6 @@ export const getDocuments = query({
   handler: async (ctx) => {
     // convex is checking the clerk authentication for us
     const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
-    console.log("User ID:", userId);
     if (!userId) {
       return [];
     }

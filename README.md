@@ -84,3 +84,116 @@ const createDocument = useMutation(api.documents.createDocument);
 const documents = useQuery(api.documents.getDocuments);
 <button onClick={() => createDocument({ title: "hello world" })}>
 ```
+
+# File Upload to Convex Storage + Database
+
+## 1. Backend: Generate Upload URL + Store File Reference
+
+```ts
+// Generate a signed URL for uploading files to storage
+export const generateUploadUrl = mutation({
+  handler: async (ctx) => {
+    // Check authentication
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    if (!userId) {
+      throw new ConvexError("User not authenticated");
+    }
+    
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+// Create document with file reference
+export const createDocument = mutation({
+  args: {
+    title: v.string(),
+    fileId: v.string(), // This is the file ID from storage
+  },
+  handler: async (ctx, args) => {
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    if (!userId) {
+      throw new ConvexError("User not authenticated");
+    }
+
+    // Store file metadata in database
+    await ctx.db.insert("documents", {
+      title: args.title,
+      fileId: args.fileId, // Reference to the uploaded file
+      tokenIdentifier: userId,
+    });
+  },
+});
+```
+
+## 2. Frontend: Upload File + Create Database Record
+
+```tsx
+// In your React component
+const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+const createDocument = useMutation(api.documents.createDocument);
+
+async function handleUpload(title: string, file: File) {
+  // Step 1: Get upload URL from Convex
+  const uploadUrl = await generateUploadUrl();
+  
+  // Step 2: Upload file to Convex storage
+  const response = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+  
+  const { storageId } = await response.json();
+  
+  // Step 3: Create database record with file reference
+  await createDocument({
+    title: title,
+    fileId: storageId, // Link database record to uploaded file
+  });
+}
+```
+
+## 3. Schema: Include File Reference
+
+```ts
+// convex/schema.ts
+export default defineSchema({
+  documents: defineTable({
+    title: v.string(),
+    tokenIdentifier: v.string(),
+    fileId: v.string(), // File ID from storage service
+  }).index("by_tokenIdentifier", ["tokenIdentifier"]),
+});
+```
+
+## 4. File Input Form (React Hook Form + Zod)
+
+```tsx
+const formSchema = z.object({
+  title: z.string().min(1).max(250),
+  file: z.instanceof(File),
+});
+
+// In your form component
+<FormField
+  control={form.control}
+  name="file"
+  render={({ field: { value, onChange, ...fieldProps } }) => (
+    <FormItem>
+      <FormLabel>File</FormLabel>
+      <FormControl>
+        <Input
+          type="file"
+          accept=".txt, .xml, .doc"
+          {...fieldProps}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            onChange(file); // Tell React Hook Form about the file
+          }}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
