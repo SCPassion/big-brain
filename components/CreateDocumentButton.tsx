@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "./ui/button";
-import { api } from "@/convex/_generated/api";
-import { useMutation } from "convex/react";
 import {
   Dialog,
   DialogContent,
@@ -11,22 +9,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import UploadDocumentForm from "./UploadDocumentForm";
+import React from "react";
 
 export default function CreateDocumentButton() {
-  const createDocument = useMutation(api.documents.createDocument);
-
+  const [isOpen, setIsOpen] = React.useState(false);
   return (
-    <Dialog>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger asChild>
         {/* aschild: attaching thing clickable inside shadcn components
         Instead of DialogTrigger being clickable, take the styling of the trigger and apply it to the button
          */}
-        <Button
-          onClick={() => createDocument({ title: "hello world" })}
-          variant={"default"}
-        >
-          Upload Document
-        </Button>
+        <Button variant={"default"}>Upload Document</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -35,7 +29,7 @@ export default function CreateDocumentButton() {
             Upload a team document for your to search over in the future.
           </DialogDescription>
 
-          <form></form>
+          <UploadDocumentForm onUpload={() => setIsOpen(false)} />
         </DialogHeader>
       </DialogContent>
     </Dialog>

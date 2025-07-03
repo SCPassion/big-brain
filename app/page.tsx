@@ -6,6 +6,7 @@ import DocumentCard from "@/components/DocumentCard";
 import CreateDocumentButton from "@/components/CreateDocumentButton";
 
 export default function Home() {
+  // Query the documents from the Convex backend, this will be updated in real-time when there is a change in database documents table
   const documents = useQuery(api.documents.getDocuments);
   return (
     <main className="p-24">
