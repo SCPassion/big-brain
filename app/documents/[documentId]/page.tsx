@@ -5,6 +5,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import React from "react";
 
+// This demonstrates how to use convex useQuery to fetch data from backend with the nextjs params
 export default function DocumentPage({
   params,
 }: {
