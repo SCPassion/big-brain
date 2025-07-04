@@ -17,6 +17,7 @@ import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import LoadingButton from "./LoadingButton";
 import { formatError } from "zod/v4/core";
+import { Id } from "@/convex/_generated/dataModel";
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
@@ -52,7 +53,10 @@ export default function UploadDocumentForm({
 
     const { storageId } = await result.json();
     // Do something with the form values.
-    await createDocument({ title: values.title, fileId: storageId as string });
+    await createDocument({
+      title: values.title,
+      fileId: storageId as Id<"_storage">,
+    });
     //await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a delay for the upload
     onUpload();
   }

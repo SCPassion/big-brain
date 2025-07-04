@@ -9,7 +9,7 @@ export default function Home() {
   // Query the documents from the Convex backend, this will be updated in real-time when there is a change in database documents table
   const documents = useQuery(api.documents.getDocuments);
   return (
-    <main className="p-24">
+    <main className="p-24 space-y-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">My Documents</h1>
         <UploadDocumentButton />

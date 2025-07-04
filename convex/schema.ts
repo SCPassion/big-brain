@@ -6,7 +6,7 @@ export default defineSchema({
   documents: defineTable({
     title: v.string(),
     tokenIdentifier: v.string(),
-    fileId: v.string(), // This is the file ID from the storage service
+    fileId: v.id("_storage"), // This is the file ID from the storage service
   }).index("by_tokenIdenifier", ["tokenIdentifier"]),
   // by_tokenIdenifier: a name/label for the index, you can name it whatever you want
   // ["tokenIdentifier"]: the actual field(s) to index

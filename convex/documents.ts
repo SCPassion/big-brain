@@ -7,7 +7,7 @@ export const createDocument = mutation({
   args: {
     // what the user can send from frontend to backend
     title: v.string(),
-    fileId: v.string(),
+    fileId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
     // check authentication
@@ -45,5 +45,31 @@ export const getDocuments = query({
       .query("documents")
       .withIndex("by_tokenIdenifier", (q) => q.eq("tokenIdentifier", userId)) // query only for documents where the tokenIdentifier matches the user's tokenIdentifier
       .collect();
+  },
+});
+
+export const getDocument = query({
+  args: {
+    documentId: v.id("documents"), // validate that the documentId is a valid ID for the "documents" table
+  },
+  handler: async (ctx, args) => {
+    // convex is checking the clerk authentication for us
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    if (!userId) {
+      return null;
+    }
+    const document = await ctx.db.get(args.documentId);
+
+    if (!document) {
+      return null; // document not found
+    }
+    if (document.tokenIdentifier !== userId) {
+      return null;
+    }
+    // get the document with the given ID
+    return {
+      ...document,
+      documentUrl: await ctx.storage.getUrl(document.fileId),
+    };
   },
 });

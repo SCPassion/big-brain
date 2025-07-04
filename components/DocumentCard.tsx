@@ -9,6 +9,7 @@ import {
 import { Doc } from "@/convex/_generated/dataModel"; // to find the schema type that defines the data model
 import { Button } from "./ui/button";
 import { Eye } from "lucide-react";
+import Link from "next/link";
 
 export default function DocumentCard({
   document,
@@ -26,11 +27,14 @@ export default function DocumentCard({
       </CardContent>
       <CardFooter>
         <Button
+          asChild
           variant="secondary"
           className="flex items-center gap-2 cursor-pointer"
         >
-          <Eye className="w-4 h-4" />
-          View
+          <Link href={`/documents/${document._id}`}>
+            <Eye className="w-4 h-4" />
+            View
+          </Link>
         </Button>
       </CardFooter>
     </Card>
