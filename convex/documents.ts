@@ -1,7 +1,14 @@
 // whatever you data model is, name the file accordingly
 
-import { mutation, query } from "./_generated/server";
+import { action, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
+import { api } from "./_generated/api";
+
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const createDocument = mutation({
   args: {
@@ -29,6 +36,65 @@ export const createDocument = mutation({
 export const generateUploadUrl = mutation({
   handler: async (ctx) => {
     return await ctx.storage.generateUploadUrl();
+  },
+});
+
+// In convex, there is action function, typically used when you need to contact a third-party library or API.
+// Something that is not atomic, aka not just a database operation within convex.
+// Whereas, mutation must be transactional, and have to be retriable
+
+// Since we are planning to use OpenAI API to ask questions, we will use action
+export const askQuestion = action({
+  args: {
+    question: v.string(),
+    documentId: v.id("documents"), // validate that the documentId is a valid ID
+  },
+  handler: async (ctx, args) => {
+    // check authentication
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+    if (!userId) {
+      throw new ConvexError("User not authenticated");
+    }
+
+    // Note in an action, uou cannot access the convex database directly.
+    // Why? Because actions are not transactional.
+    // You need to invoke mutation / query to access the database, and wait for those to finish before proceeding.
+
+    // This runs a query to get the document with the given ID
+    const document = await ctx.runQuery(api.documents.getDocument, {
+      documentId: args.documentId,
+    });
+
+    if (!document) {
+      throw new ConvexError("Document not found");
+    }
+
+    // Get the file
+    const file = await ctx.storage.get(document.fileId);
+
+    if (!file) {
+      throw new ConvexError("File not found");
+    }
+
+    const text = await file.text(); // read the file content as text
+
+    // use the content of the file to ask OpenAI to do something, https://github.com/openai/openai-node
+    const chatCompletion: OpenAI.Chat.Completions.ChatCompletion =
+      await client.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system", // system role: this is the context that OpenAI will use to answer the question, provided by the developer
+            content: `Here is a text file: ${text}`,
+          },
+          {
+            role: "user", // user role: this is the question the user asked, the person visiting the website
+            content: `Please answer this question: ${args.question}`,
+          },
+        ],
+      });
+
+    return chatCompletion.choices[0].message.content; // return the response from OpenAI
   },
 });
 

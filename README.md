@@ -197,3 +197,8 @@ const formSchema = z.object({
   )}
 />
 ```
+
+
+# OpenAI github :
+https://github.com/openai/openai-node
+npm install openai    
