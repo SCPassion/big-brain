@@ -98,7 +98,7 @@ export const generateUploadUrl = mutation({
     if (!userId) {
       throw new ConvexError("User not authenticated");
     }
-    
+
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -135,16 +135,16 @@ const createDocument = useMutation(api.documents.createDocument);
 async function handleUpload(title: string, file: File) {
   // Step 1: Get upload URL from Convex
   const uploadUrl = await generateUploadUrl();
-  
+
   // Step 2: Upload file to Convex storage
   const response = await fetch(uploadUrl, {
     method: "POST",
     headers: { "Content-Type": file.type },
     body: file,
   });
-  
+
   const { storageId } = await response.json();
-  
+
   // Step 3: Create database record with file reference
   await createDocument({
     title: title,
@@ -195,10 +195,52 @@ const formSchema = z.object({
       <FormMessage />
     </FormItem>
   )}
-/>
+/>;
 ```
 
-
 # OpenAI github :
+
 https://github.com/openai/openai-node
-npm install openai    
+npm install openai
+
+# query vs internalQuery
+
+## Use query when:
+
+Frontend can call it directly
+
+Public API endpoint
+
+User-facing functionality
+
+## Use internalQuery when:
+
+- Only server-side Convex functions can call it
+
+- Private/internal business logic
+
+- Helper functions for actions
+
+# mutation vs internalMutation
+
+## Use mutation when:
+
+- Frontend can call it directly
+
+- User-triggered actions
+
+- Public API endpoints
+
+## Use internalMutation when:
+
+- Only server-side Convex functions can call it
+
+- Private data manipulation
+
+- Called from actions/other functions
+
+# Rule of thumb:
+
+- Public (frontend can call) → query/mutation
+
+- Private (server-only) → internalQuery/internalMutation

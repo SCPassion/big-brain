@@ -1,13 +1,51 @@
 // whatever you data model is, name the file accordingly
 
-import { action, mutation, query } from "./_generated/server";
+import {
+  action,
+  ActionCtx,
+  internalQuery,
+  mutation,
+  MutationCtx,
+  query,
+  QueryCtx,
+} from "./_generated/server";
 import { ConvexError, v } from "convex/values";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 import OpenAI from "openai";
+import { Id } from "./_generated/dataModel";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+});
+
+export async function hasAccessToDocument(
+  ctx: MutationCtx | QueryCtx,
+  documentId: Id<"documents">
+) {
+  const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+  if (!userId) {
+    return null;
+  }
+  const document = await ctx.db.get(documentId);
+
+  if (!document) {
+    return null; // document not found
+  }
+  if (document.tokenIdentifier !== userId) {
+    return null;
+  }
+
+  return { document, userId }; // return the document if the user has access
+}
+
+export const hasAccessToDocumentQuery = internalQuery({
+  args: {
+    documentId: v.id("documents"), // validate that the documentId is a valid ID for the "documents" table
+  },
+  handler: async (ctx, args) => {
+    return await hasAccessToDocument(ctx, args.documentId);
+  },
 });
 
 export const createDocument = mutation({
@@ -50,27 +88,23 @@ export const askQuestion = action({
     documentId: v.id("documents"), // validate that the documentId is a valid ID
   },
   handler: async (ctx, args) => {
-    // check authentication
-    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
-    if (!userId) {
-      throw new ConvexError("User not authenticated");
-    }
+    const accessObj = await ctx.runQuery(
+      internal.documents.hasAccessToDocumentQuery,
+      {
+        documentId: args.documentId,
+      }
+    );
 
     // Note in an action, uou cannot access the convex database directly.
     // Why? Because actions are not transactional.
     // You need to invoke mutation / query to access the database, and wait for those to finish before proceeding.
 
-    // This runs a query to get the document with the given ID
-    const document = await ctx.runQuery(api.documents.getDocument, {
-      documentId: args.documentId,
-    });
-
-    if (!document) {
-      throw new ConvexError("Document not found");
+    if (!accessObj) {
+      throw new ConvexError("You do not have access to this document");
     }
 
     // Get the file
-    const file = await ctx.storage.get(document.fileId);
+    const file = await ctx.storage.get(accessObj.document.fileId);
 
     if (!file) {
       throw new ConvexError("File not found");
@@ -79,6 +113,7 @@ export const askQuestion = action({
     const text = await file.text(); // read the file content as text
 
     // use the content of the file to ask OpenAI to do something, https://github.com/openai/openai-node
+    // Can only be performed in an action, not a mutation
     const chatCompletion: OpenAI.Chat.Completions.ChatCompletion =
       await client.chat.completions.create({
         model: "gpt-3.5-turbo",
@@ -94,7 +129,25 @@ export const askQuestion = action({
         ],
       });
 
-    return chatCompletion.choices[0].message.content; // return the response from OpenAI
+    // TODO: Store user prompt as a chat record
+    await ctx.runMutation(internal.chats.createChatRecord, {
+      documentId: args.documentId,
+      text: args.question,
+      isHuman: true, // this is a human question
+      tokenIdentifier: accessObj.userId, // associate the chat record with the user
+    });
+    // TODO: Store OpenAI response as a chat record
+    const response =
+      chatCompletion.choices[0].message.content ??
+      "could not get a response from OpenAI";
+
+    await ctx.runMutation(internal.chats.createChatRecord, {
+      documentId: args.documentId,
+      text: response, // this is the response from OpenAI
+      isHuman: false, // this is not a human question, this is a response from OpenAI
+      tokenIdentifier: accessObj.userId, // associate the chat record with the user
+    });
+    return response; // return the response from OpenAI
   },
 });
 
@@ -120,22 +173,15 @@ export const getDocument = query({
   },
   handler: async (ctx, args) => {
     // convex is checking the clerk authentication for us
-    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
-    if (!userId) {
-      return null;
-    }
-    const document = await ctx.db.get(args.documentId);
+    const accessObj = await hasAccessToDocument(ctx, args.documentId);
 
-    if (!document) {
-      return null; // document not found
-    }
-    if (document.tokenIdentifier !== userId) {
-      return null;
+    if (!accessObj) {
+      throw new ConvexError("Document not found or access denied");
     }
     // get the document with the given ID
     return {
-      ...document,
-      documentUrl: await ctx.storage.getUrl(document.fileId),
+      ...accessObj.document,
+      documentUrl: await ctx.storage.getUrl(accessObj.document.fileId),
     };
   },
 });

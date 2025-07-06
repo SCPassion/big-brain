@@ -11,4 +11,11 @@ export default defineSchema({
   // by_tokenIdenifier: a name/label for the index, you can name it whatever you want
   // ["tokenIdentifier"]: the actual field(s) to index
   // You can have multiple indexes, it will order first by the first field, then by the second field, and so on.
+
+  chats: defineTable({
+    documentId: v.id("documents"), // Reference to the document table
+    tokenIdentifier: v.string(),
+    isHuman: v.boolean(), // true for human messages, false for AI messages
+    text: v.string(),
+  }).index("by_documentId_tokenIdenifier", ["documentId", "tokenIdentifier"]),
 });
