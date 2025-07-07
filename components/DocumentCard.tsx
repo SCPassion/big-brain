@@ -23,7 +23,7 @@ export default function DocumentCard({
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Card Content</p>
+        <p>{document.description}</p>
       </CardContent>
       <CardFooter>
         <Button
