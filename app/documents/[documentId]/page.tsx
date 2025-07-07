@@ -28,6 +28,14 @@ export default function DocumentPage({
     return <div>You don't have access to view this document</div>;
   }
 
+  if (document === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  if (document === null) {
+    return <div>Document not found</div>;
+  }
+
   return (
     <main className="p-24 space-y-8">
       <div className="flex justify-between items-center mb-8">
