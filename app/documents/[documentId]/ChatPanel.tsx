@@ -27,8 +27,12 @@ export default function ChatPanel({
           <div
             key={chat._id}
             className={cn(
-              { "bg-slate-800": chat.isHuman, "text-right": chat.isHuman },
-              "rounded p-2 whitespace-pre-line"
+              {
+                "bg-slate-950": !chat.isHuman,
+                "bg-slate-800": chat.isHuman,
+                "text-right": chat.isHuman,
+              },
+              "rounded p-8 whitespace-pre-line"
             )}
           >
             {chat.isHuman ? "YOU" : "AI"}: {chat.text}
