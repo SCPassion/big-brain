@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Doc } from "@/convex/_generated/dataModel"; // to find the schema type that defines the data model
 import { Button } from "./ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function DocumentCard({
@@ -23,7 +23,15 @@ export default function DocumentCard({
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <p>{document.description}</p>
+        <div className="flex justify-center">
+          {!document.description ? (
+            <div className="text-center">
+              <Loader2 className="animate-spin" />
+            </div>
+          ) : (
+            document.description
+          )}
+        </div>
       </CardContent>
       <CardFooter>
         <Button
