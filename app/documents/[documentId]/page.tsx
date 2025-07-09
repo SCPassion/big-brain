@@ -7,6 +7,8 @@ import React from "react";
 import ChatPanel from "./ChatPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import DeleteDocumentButton from "./DeleteDocumentButton";
+import { Button } from "@/components/ui/button";
 
 // This demonstrates how to use convex useQuery to fetch data from backend with the nextjs params
 export default function DocumentPage({
@@ -17,13 +19,25 @@ export default function DocumentPage({
   const [documentId, setDocumentId] = React.useState<Id<"documents"> | null>(
     null
   );
-  const document = useQuery(api.documents.getDocument, {
-    documentId: documentId as Id<"documents">,
-  });
+  const document = useQuery(
+    api.documents.getDocument,
+    documentId ? { documentId } : "skip"
+  );
 
   React.useEffect(() => {
     params.then((p) => setDocumentId(p.documentId as Id<"documents">));
   }, [documentId]);
+
+  if (!documentId) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <h1 className="text-2xl font-bold mb-4">Invalid Document URL</h1>
+        <Button onClick={() => (window.location.href = "/")}>
+          Back to Documents
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <main className="p-24 space-y-8">
@@ -46,6 +60,8 @@ export default function DocumentPage({
         <>
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold">{document.title}</h1>
+
+            <DeleteDocumentButton documentId={document._id} />
           </div>
           <div className="flex gap-12">
             <Tabs defaultValue="document" className="w-full">

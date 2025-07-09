@@ -12,6 +12,7 @@ import {
 import UploadDocumentForm from "./UploadDocumentForm";
 import React from "react";
 import { Upload } from "lucide-react";
+import { btnIconStyles, btnStyles } from "@/styles/styles";
 
 export default function UploadDocumentButton() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -21,11 +22,8 @@ export default function UploadDocumentButton() {
         {/* aschild: attaching thing clickable inside shadcn components
         Instead of DialogTrigger being clickable, take the styling of the trigger and apply it to the button
          */}
-        <Button
-          variant={"default"}
-          className="flex items-center gap-2 cursor-pointer"
-        >
-          <Upload className="w-4 h-4" />
+        <Button variant={"default"} className={btnStyles}>
+          <Upload className={btnIconStyles} />
           Upload Document
         </Button>
       </DialogTrigger>

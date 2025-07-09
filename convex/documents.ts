@@ -254,12 +254,31 @@ export const getDocument = query({
     const accessObj = await hasAccessToDocument(ctx, args.documentId);
 
     if (!accessObj) {
-      throw new ConvexError("Document not found or access denied");
+      return null;
     }
     // get the document with the given ID
     return {
       ...accessObj.document,
       documentUrl: await ctx.storage.getUrl(accessObj.document.fileId),
     };
+  },
+});
+
+export const deleteDocument = mutation({
+  args: {
+    documentId: v.id("documents"), // validate that the documentId is a valid ID
+  },
+  handler: async (ctx, args) => {
+    const accessObj = await hasAccessToDocument(ctx, args.documentId);
+
+    if (!accessObj) {
+      throw new ConvexError("Document not found or access denied");
+    }
+
+    // delete the file from storage
+    await ctx.storage.delete(accessObj.document.fileId);
+
+    // delete the document with the given ID
+    await ctx.db.delete(args.documentId);
   },
 });
