@@ -13,6 +13,11 @@ export default defineSchema({
   // ["tokenIdentifier"]: the actual field(s) to index
   // You can have multiple indexes, it will order first by the first field, then by the second field, and so on.
 
+  notes: defineTable({
+    text: v.string(),
+    tokenIdentifier: v.string(),
+  }).index("by_tokenIdenifier", ["tokenIdentifier"]),
+
   chats: defineTable({
     documentId: v.id("documents"), // Reference to the document table
     tokenIdentifier: v.string(),

@@ -20,7 +20,7 @@ export default function Header() {
           </Link>
 
           <nav>
-            <Link href="/" className="hover:text-slate-300">
+            <Link href="/dashboard" className="hover:text-slate-300">
               Documents
             </Link>
           </nav>

@@ -12,7 +12,7 @@ import {
   QueryCtx,
 } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
-import { api, internal } from "./_generated/api";
+import { internal } from "./_generated/api";
 
 import OpenAI from "openai";
 import { Id } from "./_generated/dataModel";
@@ -158,6 +158,7 @@ export const generateUploadUrl = mutation({
 // In convex, there is action function, typically used when you need to contact a third-party library or API.
 // Something that is not atomic, aka not just a database operation within convex.
 // Whereas, mutation must be transactional, and have to be retriable
+// direct access to db or auth is not allowed in actions.
 
 // Since we are planning to use OpenAI API to ask questions, we will use action
 export const askQuestion = action({

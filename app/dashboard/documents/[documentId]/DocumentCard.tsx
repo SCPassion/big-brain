@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Doc } from "@/convex/_generated/dataModel"; // to find the schema type that defines the data model
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Eye, Loader2 } from "lucide-react";
 import Link from "next/link";
 
