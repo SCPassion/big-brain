@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const createNote = mutation({
@@ -55,5 +55,26 @@ export const getNote = query({
     }
 
     return note;
+  },
+});
+
+export const deleteNote = mutation({
+  args: {
+    noteId: v.id("notes"), // The ID of the note to delete
+  },
+  handler: async (ctx, args) => {
+    const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
+
+    if (!userId) {
+      throw new ConvexError("You must be logged in to delete a note.");
+    }
+
+    const note = await ctx.db.get(args.noteId);
+
+    if (!note || note.tokenIdentifier !== userId) {
+      throw new ConvexError("You do not have permission to delete this note.");
+    }
+
+    await ctx.db.delete(args.noteId);
   },
 });
