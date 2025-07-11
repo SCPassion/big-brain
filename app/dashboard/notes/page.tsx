@@ -1,13 +1,15 @@
+"use client";
 import React from "react";
 import CreateNoteButton from "./CreateNoteButton";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import Link from "next/link";
 
 export default function NotesPage() {
+  const notes = useQuery(api.notes.getNotes);
   return (
     <main className="w-full space-y-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Notes</h1>
-        <CreateNoteButton />
-      </div>
+      <p>Please select a note</p>
     </main>
   );
 }
