@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
-  text: z.string().min(2).max(2500),
+  text: z.string().min(2),
 });
 
 const notify = () =>
