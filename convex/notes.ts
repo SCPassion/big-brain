@@ -78,7 +78,7 @@ export const getNotes = query({
     const userId = (await ctx.auth.getUserIdentity())?.tokenIdentifier;
 
     if (!userId) {
-      throw new Error("You must be logged in to view notes.");
+      return null;
     }
 
     return await ctx.db
