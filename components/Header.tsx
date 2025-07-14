@@ -2,6 +2,7 @@ import Link from "next/link";
 import HeaderAction from "./HeaderAction";
 import { ModeToggle } from "./ui/mode-toggle";
 import Image from "next/image";
+import { OrganizationSwitcher } from "@clerk/nextjs";
 
 export default function Header() {
   return (
@@ -19,7 +20,8 @@ export default function Header() {
             BIGBRAIN
           </Link>
 
-          <nav>
+          <nav className="flex items-center gap-4">
+            <OrganizationSwitcher />
             <Link href="/dashboard" className="hover:text-slate-300">
               Documents
             </Link>

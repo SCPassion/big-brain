@@ -3,8 +3,10 @@
 import { ReactNode } from "react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { useAuth } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
+import { dark } from "@clerk/themes";
 
 if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
   throw new Error("Missing NEXT_PUBLIC_CONVEX_URL in your .env file");
@@ -24,9 +26,25 @@ export default function ConvexClientProvider({
       enableSystem
       disableTransitionOnChange
     >
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        {children}
-      </ConvexProviderWithClerk>
+      <ClerkThemeWrapper>
+        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          {children}
+        </ConvexProviderWithClerk>
+      </ClerkThemeWrapper>
     </ThemeProvider>
+  );
+}
+
+function ClerkThemeWrapper({ children }: { children: ReactNode }) {
+  const { theme } = useTheme();
+  return (
+    <ClerkProvider
+      key={theme}
+      appearance={{
+        baseTheme: theme === "dark" ? dark : undefined,
+      }}
+    >
+      {children}
+    </ClerkProvider>
   );
 }
