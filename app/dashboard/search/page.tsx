@@ -16,7 +16,7 @@ export default function SearchPage() {
 
       <SearchForm setResults={setResults} />
 
-      <ul className="space-y-4">
+      <ul className="flex flex-col gap-4">
         {results?.map((result) => {
           if (result.type === "note") {
             return (
@@ -24,8 +24,8 @@ export default function SearchPage() {
                 href={`/dashboard/notes/${result.record._id}`}
                 key={result.record._id}
               >
-                <li className="bg-slate-800 rounded p-4 whitespace-pre-line">
-                  type: Note
+                <li className="bg-slate-800 rounded p-4 whitespace-pre-line hover:bg-slate-700">
+                  type: Note {result.score}
                   {result.record.text.substring(0, 500)}...
                 </li>
               </Link>
@@ -36,8 +36,8 @@ export default function SearchPage() {
                 href={`/dashboard/documents/${result.record._id}`}
                 key={result.record._id}
               >
-                <li className="bg-slate-800 rounded p-4 whitespace-pre-line">
-                  type: Document
+                <li className="bg-slate-800 rounded p-4 whitespace-pre-line hover:bg-slate-700">
+                  type: Document {result.score}
                   {result.record.title}
                   {result.record.description}
                 </li>

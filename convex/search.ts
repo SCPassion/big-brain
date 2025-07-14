@@ -37,9 +37,11 @@ export const searchAction = action({
       | {
           type: "note";
           record: Doc<"notes">;
+          score: number;
         }
       | {
           type: "document";
+          score: number;
           record: Doc<"documents">;
         }
     )[] = [];
@@ -52,7 +54,7 @@ export const searchAction = action({
 
         if (!note) return;
 
-        records.push({ record: note, type: "note" });
+        records.push({ record: note, type: "note", score: result._score });
       })
     );
 
@@ -64,10 +66,14 @@ export const searchAction = action({
 
         if (!document) return;
 
-        records.push({ record: document, type: "document" });
+        records.push({
+          record: document,
+          type: "document",
+          score: result._score,
+        });
       })
     );
 
-    return records;
+    return records.sort((a, b) => b.score - a.score); // sort by score descending
   },
 });
