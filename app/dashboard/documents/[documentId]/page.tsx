@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import DeleteDocumentButton from "./DeleteDocumentButton";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
 
 // This demonstrates how to use convex useQuery to fetch data from backend with the nextjs params
 export default function DocumentPage({
@@ -16,6 +17,7 @@ export default function DocumentPage({
 }: {
   params: Promise<{ documentId: string }>;
 }) {
+  const { theme } = useTheme();
   const [documentId, setDocumentId] = React.useState<Id<"documents"> | null>(
     null
   );
@@ -70,11 +72,17 @@ export default function DocumentPage({
                 <TabsTrigger value="chat">Chat</TabsTrigger>
               </TabsList>
               <TabsContent value="document">
-                <div className="bg-gray-900 p-4 rounded-xl flex-1 h-[500px]">
+                <div className="bg-gray-900 p-4 rounded-xl flex-1 h-[500px] text-white">
                   {document.documentUrl && (
                     <iframe
                       src={document.documentUrl}
                       className="w-full h-full"
+                      style={{
+                        filter:
+                          theme === "dark"
+                            ? "brightness(0) saturate(100%) invert(1)"
+                            : "brightness(0) saturate(100%) invert(1)",
+                      }}
                     />
                   )}
                 </div>

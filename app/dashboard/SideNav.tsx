@@ -15,8 +15,8 @@ export default function SideNav() {
           <Link
             href="/dashboard/search"
             className={cn(
-              "font-light flex items-center gap-2 text-xl hover:text-cyan-100",
-              { "text-cyan-300": pathName.endsWith("/search") }
+              "font-light flex items-center gap-2 text-xl hover:text-cyan-400 dark:hover:text-cyan-100",
+              { "text-cyan-600": pathName.endsWith("/search") }
             )}
           >
             <SearchIcon />
@@ -27,8 +27,8 @@ export default function SideNav() {
           <Link
             href="/dashboard/documents"
             className={cn(
-              "font-light flex items-center gap-2 text-xl hover:text-cyan-100",
-              { "text-cyan-300": pathName.endsWith("/documents") }
+              "font-light flex items-center gap-2 text-xl hover:text-cyan-400 dark:hover:text-cyan-100",
+              { "text-cyan-600": pathName.endsWith("/documents") }
             )}
           >
             <FileIcon />
@@ -39,24 +39,12 @@ export default function SideNav() {
           <Link
             href="/dashboard/notes"
             className={cn(
-              "font-light flex items-center gap-2 text-xl hover:text-cyan-100",
-              { "text-cyan-300": pathName.endsWith("/notes") }
+              "font-light flex items-center gap-2 text-xl hover:text-cyan-400 dark:hover:text-cyan-100",
+              { "text-cyan-600": pathName.endsWith("/notes") }
             )}
           >
             <NotebookPen />
             Notes
-          </Link>
-        </li>
-        <li>
-          <Link
-            href="/dashboard/settings"
-            className={cn(
-              "font-light flex items-center gap-2 text-xl hover:text-cyan-100",
-              { "text-cyan-300": pathName.endsWith("/settings") }
-            )}
-          >
-            <CogIcon />
-            Settings
           </Link>
         </li>
       </ul>

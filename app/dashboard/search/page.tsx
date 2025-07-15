@@ -19,7 +19,7 @@ function SearchResult({
 }) {
   return (
     <Link href={url}>
-      <li className="bg-slate-800 rounded p-4 whitespace-pre-line hover:bg-slate-700 space-y-4">
+      <li className="dark:bg-slate-800 bg-slate-200 rounded p-4 whitespace-pre-line dark:hover:bg-slate-700 hover:bg-slate-300 space-y-4">
         <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2">
             {type === "note" ? (
@@ -27,16 +27,16 @@ function SearchResult({
             ) : (
               <FileIcon size={20} />
             )}
-            <span className="text-md text-slate-400 text-xl">
+            <span className="text-md dark:text-slate-400 text-xl">
               {type === "note" ? "Note" : "Document"}
             </span>
           </div>
-          <div className="text-md text-slate-400">
+          <div className="text-md dark:text-slate-400">
             Relevancy of {score.toFixed(2)}
           </div>
         </div>
 
-        <div className="text-md text-slate-400">
+        <div className="text-md dark:text-slate-400">
           {text.substring(0, 500)}...
         </div>
       </li>

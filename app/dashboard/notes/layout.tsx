@@ -63,9 +63,12 @@ export default function NotesLayout({
             {notes?.map((note) => (
               <li
                 key={note._id}
-                className={cn("text-base hover:text-cyan-100", {
-                  "text-cyan-200": note._id === noteId,
-                })}
+                className={cn(
+                  "text-base hover:text-cyan-400 dark:hover:text-cyan-100 dark:text-cyan-200",
+                  {
+                    "text-cyan-500": note._id === noteId,
+                  }
+                )}
               >
                 <Link href={`/dashboard/notes/${note._id}`}>
                   {note.text.substring(0, 24) + "..."}

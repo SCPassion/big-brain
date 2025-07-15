@@ -2,11 +2,10 @@ import Link from "next/link";
 import HeaderAction from "./HeaderAction";
 import { ModeToggle } from "./ui/mode-toggle";
 import Image from "next/image";
-import { OrganizationSwitcher } from "@clerk/nextjs";
 
 export default function Header() {
   return (
-    <div className="bg-slate-900 py-4 px-8">
+    <div className="z-10 relative bg-slate-50 py-4 px-8 dark:bg-gray-900">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex gap-12 items-center">
           <Link className="flex items-center gap-4 text-2xl" href="/">
@@ -21,7 +20,7 @@ export default function Header() {
           </Link>
 
           <nav className="flex items-center gap-4">
-            <OrganizationSwitcher />
+            {/* <OrganizationSwitcher /> */}
             <Link href="/dashboard" className="hover:text-slate-300">
               Documents
             </Link>
